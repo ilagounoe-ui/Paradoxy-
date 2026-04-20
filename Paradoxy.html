@@ -3,186 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Éryndale - Cinématique</title>
+    <title>Éryndale - Origines</title>
     <style>
-        /* BASE DU JEU */
+        /* BASE DU JEU ET FOND ANIMÉ */
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: black;
-            color: white;
+            background-color: #050505;
+            color: #d4af37;
             font-family: 'Georgia', serif;
-            overflow: hidden; /* Empêche de scroller */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center; text-align: center;
+        }
+
+        /* L'arrière-plan de bataille (Feu et ombres) */
+        #battle-background {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at bottom, #3a0000 0%, #050505 70%);
+            z-index: -2;
+            opacity: 0.8;
+            animation: pulseFire 4s infinite alternate;
+        }
+
+        @keyframes pulseFire {
+            0% { opacity: 0.5; }
+            100% { opacity: 0.9; box-shadow: inset 0 -50px 100px #ff2a00; }
+        }
+
+        /* L'Étoile Filante (CSS pure) */
+        .shooting-star {
+            position: absolute; top: 10%; right: 10%;
+            width: 4px; height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #fff, 0 0 20px #d4af37, -20px 20px 30px #d4af37;
+            animation: fall 5s linear infinite;
+            z-index: -1;
+            opacity: 0;
+        }
+        
+        .shooting-star::after {
+            content: ''; position: absolute; top: 0; right: 0;
+            width: 100px; height: 2px;
+            background: linear-gradient(to right, rgba(255,255,255,0), rgba(212,175,55,1));
+            transform: rotate(-45deg) translate(-50px, -50px);
+        }
+
+        @keyframes fall {
+            0% { transform: translate(0, 0); opacity: 1; }
+            20% { transform: translate(-300px, 300px); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* TEXTES ET MENUS */
+        #start-screen { position: absolute; cursor: pointer; font-size: 1.2rem; color: #fff; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        .fade-in { opacity: 1 !important; transition: opacity 2s ease-in; }
+        .fade-out { opacity: 0 !important; transition: opacity 2s ease-out; }
+
+        #cinematic-text { position: absolute; font-size: 1.5rem; opacity: 0; padding: 20px; text-shadow: 0 0 10px #000; }
+
+        /* INTERFACES (Menus et Alertes) */
+        .ui-box {
+            background: rgba(30, 20, 10, 0.95);
+            border: 2px solid #8b5a2b; border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.9), inset 0 0 15px rgba(139, 90, 43, 0.5);
+            padding: 20px; width: 85%; max-width: 400px;
+            z-index: 10;
+        }
+
+        #creation-menu { display: none; }
+        
+        /* NOTRE NOUVELLE ALERTE CUSTOMISÉE */
+        #custom-alert {
+            display: none; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
             text-align: center;
         }
 
-        /* ÉCRAN DE DÉMARRAGE (Pour autoriser le son) */
-        #start-screen {
-            position: absolute;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.7);
-            animation: pulse 2s infinite;
-        }
-
-        /* ANIMATIONS CSS */
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-
-        .fade-in {
-            opacity: 1 !important;
-            transition: opacity 2s ease-in;
-        }
-
-        .fade-out {
-            opacity: 0 !important;
-            transition: opacity 2s ease-out;
-        }
-
-        /* TEXTES DE LA CINÉMATIQUE */
-        #cinematic-text {
-            position: absolute;
-            font-size: 1.5rem;
-            color: #d4af37; /* Or sombre */
-            opacity: 0;
-            padding: 20px;
-            max-width: 80%;
-        }
-
-        /* MENU DE CRÉATION (Caché au début) */
-        #creation-menu {
-            display: none;
-            background: rgba(40, 30, 20, 0.9);
-            border: 2px solid #8b5a2b;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
-            width: 85%;
-            max-width: 400px;
-        }
-
-        .creation-title { color: #d4af37; border-bottom: 1px solid #8b5a2b; padding-bottom: 10px; }
         input, select {
-            width: 100%; padding: 10px; margin: 10px 0;
-            background: rgba(0,0,0,0.5); color: white;
-            border: 1px solid #8b5a2b; border-radius: 5px;
-            box-sizing: border-box;
-            font-family: 'Georgia', serif;
+            width: 100%; padding: 10px; margin: 10px 0; background: rgba(0,0,0,0.7);
+            color: #d4af37; border: 1px solid #8b5a2b; border-radius: 5px; font-family: 'Georgia', serif;
         }
         button {
             width: 100%; padding: 15px; margin-top: 15px;
-            background-color: #8b5a2b; color: white;
-            border: none; border-radius: 5px;
-            font-size: 1.2rem; cursor: pointer;
-            font-family: 'Georgia', serif;
+            background: linear-gradient(to bottom, #8b5a2b, #5c3a21); color: white;
+            border: 1px solid #d4af37; border-radius: 5px; font-size: 1.1rem; cursor: pointer; font-family: 'Georgia', serif;
         }
-        button:active { background-color: #5c3a21; }
+        button:active { filter: brightness(0.8); }
     </style>
 </head>
 <body>
 
     <audio id="bg-music" src="musique_piano.mp3" loop></audio>
+    <audio id="battle-sounds" src="sons_bataille.mp3" loop></audio> <div id="battle-background"></div>
+    <div class="shooting-star"></div>
 
-    <div id="start-screen" onclick="lancerCinematique()">
-        Toucher l'écran pour commencer
-    </div>
-
+    <div id="start-screen" onclick="lancerCinematique()">Toucher l'écran pour commencer</div>
     <div id="cinematic-text"></div>
 
-    <div id="creation-menu">
-        <h2 class="creation-title">L'Héritage Commence</h2>
-        
+    <div id="creation-menu" class="ui-box">
+        <h2 style="border-bottom: 1px solid #8b5a2b; padding-bottom: 10px;">L'Héritage Commence</h2>
         <label>Nom du Protagoniste</label>
         <input type="text" id="hero-name" value="Éryndale">
-        
         <label>Genre</label>
-        <select id="hero-gender">
-            <option value="garcon">Garçon</option>
-            <option value="fille">Fille</option>
-        </select>
-
-        <label>Qualité Visuelle (Future 3D)</label>
-        <select id="game-fps">
-            <option value="60">Performances (60 FPS)</option>
-            <option value="30">Cinématique (30 FPS - 4K)</option>
-        </select>
-
+        <select id="hero-gender"><option value="garcon">Garçon</option><option value="fille">Fille</option></select>
         <button onclick="entrerDansLeCocon()">Éveiller le ResoEther</button>
     </div>
 
+    <div id="custom-alert" class="ui-box">
+        <h3 style="color: #fff; margin-top: 0;">Message du Cocon</h3>
+        <p id="alert-message" style="font-size: 1.1rem;"></p>
+        <button onclick="fermerAlerte()">Compris</button>
+    </div>
+
     <script>
-        // L'histoire découpée en phrases
         const histoire = [
-            "Certaines légendes s'écrivent dans le sang...",
-            "Ton grand-père était ton seul repère dans ce monde.",
-            "Mais l'ombre l'a dévoré, tout comme elle a emporté ton père.",
+            "Au loin, les 8 Rois Démons déchirent les cieux...",
+            "Ton grand-père était ton seul repère.",
             "Aujourd'hui, il ne te reste qu'un héritage...",
             "Le pouvoir de tout changer."
         ];
 
         let indexTexte = 0;
         const divTexte = document.getElementById("cinematic-text");
-        const ecranDepart = document.getElementById("start-screen");
-        const musique = document.getElementById("bg-music");
-        const menuCreation = document.getElementById("creation-menu");
 
-        // Fonction déclenchée au premier toucher de l'écran
+        // Fonction pour remplacer le vilain alert() du navigateur
+        function afficherAlerte(message) {
+            document.getElementById("alert-message").innerText = message;
+            document.getElementById("custom-alert").style.display = "block";
+        }
+
+        function fermerAlerte() {
+            document.getElementById("custom-alert").style.display = "none";
+        }
+
         function lancerCinematique() {
-            // 1. Cacher le bouton de départ
-            ecranDepart.style.display = "none";
+            document.getElementById("start-screen").style.display = "none";
             
-            // 2. Lancer la musique (C'est autorisé car le joueur a tapoté !)
-            musique.volume = 0.5; // Met le volume à la moitié
-            musique.play().catch(e => console.log("Fichier audio non trouvé pour le moment."));
+            // Lancer les musiques
+            const piano = document.getElementById("bg-music");
+            const battle = document.getElementById("battle-sounds");
+            piano.volume = 0.6;
+            battle.volume = 0.2; // Les combats sont loin en fond
+            piano.play().catch(() => {});
+            battle.play().catch(() => {});
 
-            // 3. Lancer la boucle de texte
             afficherTexteSuivant();
         }
 
         function afficherTexteSuivant() {
             if (indexTexte < histoire.length) {
-                // Mettre le texte
                 divTexte.innerText = histoire[indexTexte];
-                
-                // Faire apparaître (Fade In)
-                divTexte.classList.remove("fade-out");
-                divTexte.classList.add("fade-in");
-
-                // Attendre 3 secondes, puis faire disparaître (Fade Out)
+                divTexte.classList.remove("fade-out"); divTexte.classList.add("fade-in");
                 setTimeout(() => {
-                    divTexte.classList.remove("fade-in");
-                    divTexte.classList.add("fade-out");
-                    
+                    divTexte.classList.remove("fade-in"); divTexte.classList.add("fade-out");
                     indexTexte++;
-                    
-                    // Attendre 2 secondes (le temps du fondu au noir) avant la phrase suivante
                     setTimeout(afficherTexteSuivant, 2000);
-                }, 3500); // Temps de lecture de la phrase
+                }, 3500);
             } else {
-                // Quand l'histoire est finie, afficher le menu de création
-                setTimeout(afficherMenuCreation, 1000);
+                setTimeout(() => {
+                    divTexte.style.display = "none";
+                    document.getElementById("creation-menu").style.display = "block";
+                    document.getElementById("creation-menu").classList.add("fade-in");
+                }, 1000);
             }
         }
 
-        function afficherMenuCreation() {
-            divTexte.style.display = "none";
-            menuCreation.style.display = "block";
-            // Petit effet d'apparition sur le menu
-            menuCreation.classList.add("fade-in");
-        }
-
         function entrerDansLeCocon() {
-            // Récupérer les choix du joueur
             const nom = document.getElementById("hero-name").value;
-            const genre = document.getElementById("hero-gender").value;
-            
-            alert(`Bienvenue ${nom}. L'aventure commence ! (Transfert vers le tableau de bord Sentinelle...)`);
-            // Ici, tu pourras plus tard lier la fonction Firebase ou rediriger vers l'interface de jeu.
+            // On utilise notre belle alerte personnalisée !
+            afficherAlerte(`Bienvenue ${nom}. Tes données sont prêtes. Prépare-toi à affronter l'Archonte.`);
         }
     </script>
 </body>
